@@ -5,11 +5,6 @@ import * as d3 from 'd3'
 
 const cellSize = 20
 
-await moveRight(4)
-await moveDown(4)
-await moveLeft(4)
-await moveUp(4)
-
 const DEBUG = 1
 const EMPTY = 0, WALL = 1, DOOR = 2;
 const ROOM_MIN_SIZE = 4, ROOM_MAX_SIZE = 6;
