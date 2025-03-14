@@ -30,32 +30,34 @@
 * Move multiple squares at a time, according to keypress
 * Program walking  a square / oblong of any size without using keypress
 
-## Stage 2 - detecting things
-
-### Unplugged
-* Walk, looking out for a wall
+## Stage 2 - Colouring Things
 
 ### Demo
-* Continue walking in one direction until wall
+* Use keypress ("right") to move the bear and colour its square, eg, blue
 
-### Unplugged
-* Walk, when reach wall, bounce back
+### Explain RGB
+* Show colour picker
 
 ### Demo
-* Bouncing off walls, unidirectional -- need to keep current direction function as state
+* Show different RGB values
 
+### Demo - How to do a gradient?
+* First: across 16 squares [because 16 / 16]
+* Keep two colours empty; change one across its range
 
-Concept of state -- knowing which way we're walking
-* Unplugged: walk right, changing direction through 90 degrees when next to a wall, ie walking along the wall until reach another wall, then turn again. [NB turn means deciding what new direction to walk in...]
-* Demo: When reach wall: if going up/down, look left/right; if going left/right, look up/down
+* Second: change more than one colour
+* Pick a random colour from colour-picker; change all segments in step
+* Note that some will fall off the end...
 
-* Practical:
-* Draw a closed room in debug room
-* Programatically position bear in the room
-* Let step = moveRight
-* Walk right until reach wall and bounce left; same in reverse
-* if (step === moveRight) {step = moveLeft;}
-* else if (step === moveLeft) {step = moveRight;}
-* else if etc
+### Introduce modulo function
+* Demonstrate values cycling round
 
+### Practical: draw a square, cycling round colours
+* 
 
+## Stage 3 - using the grid squares as pixels
+
+### Talk about pixel colours - (and throw in Steganography)
+
+### Take a very simply picture and reproduce it, pixel by pixel
+### Take a more complex picture
