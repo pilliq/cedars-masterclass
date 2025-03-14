@@ -98,7 +98,7 @@ const CodeEditor = ({ initialCode = "// Write your JavaScript code here", allowV
       }
       <div
         ref={editorRef}
-        className="rounded-xl h-full border border-black overflow-auto focus:ring-2 focus:ring-blue-500"
+        className="rounded-xl h-full border border-black overflow-auto focus:ring-2 focus:ring-blue-500 p-3"
         style={{ 
           height: "300px", 
           backgroundColor: "#282c34", // Match One Dark theme background color

@@ -1487,16 +1487,22 @@ async function execScript(script, { symbols } = {}) {
   try {
     const fn = new Function(...Object.keys(symbols), `
       ${script}
-      if (typeof setup === 'function') {
-        setup()
-      }
-      if (typeof draw !== 'function') {
-        throw new Error('A draw function is required')
+
+      async function wrappedSetup() {
+        return new Promise(async resolve => {
+          if (typeof setup === 'function') {
+            resolve(await setup())
+          } else {
+            resolve()
+          }
+        })
       }
 
       async function wrappedDraw() {
         // Execute the user's draw function
-        await draw();
+        if (typeof draw === 'function') {
+          await draw()
+        }
       }
 
       //async function loop() {
@@ -1510,7 +1516,8 @@ async function execScript(script, { symbols } = {}) {
         loop();
       }
 
-      loop()
+      wrappedSetup()
+        .then(() => loop())
     `)
     res = await fn(...Object.values(symbols))
   } catch (error) {
@@ -1520,25 +1527,47 @@ async function execScript(script, { symbols } = {}) {
   return [res, err]
 }
 
-const Cedars = () => {
-  const vizRef = useRef()
-  const [state, setState] = useState(initState({
-    bears: [newBear({ movement: 'controlled' })]
-  }))
-  const [code, setCode] = useState(`
-function setup() {
-  console.log('hi')
+const getInitCode = () => {
+  return `async function setup() {
+
 }
 
 async function draw() {
-  if (lookRight() == 1) {
-    await moveDown()
-  } else {
-    await moveRight()
-  }
+
+}
+`
 }
 
-  `)
+function getStorageValue(key, defaultValue, { parseJson=false }={}) {
+  // getting stored value
+  const saved = localStorage.getItem(key)
+  const initial = parseJson ? JSON.parse(saved) : saved
+  return initial ? initial : defaultValue
+}
+
+export const useLocalStorage = (key, defaultValue, { parseJson=false }={}) => {
+  const [value, setValue] = useState(() => {
+    return getStorageValue(key, defaultValue)
+  });
+
+  useEffect(() => {
+    // storing input name
+    localStorage.setItem(key, parseJson ? JSON.stringify(value) : value)
+  }, [key, value])
+
+  return [value, setValue]
+};
+
+const startState = () => {
+  return initState({
+    bears: [newBear({ movement: 'controlled' })]
+  })
+}
+
+const Cedars = () => {
+  const vizRef = useRef()
+  const [state, setState] = useState(startState())
+  const [code, setCode] = useLocalStorage('cedars-master-class-code', getInitCode())
   const [errors, setErrors] = useState(null)
   const [output, setOutput] = useState([])
 
@@ -1547,6 +1576,10 @@ async function draw() {
   }
 
   const bear = state.bears[0]
+
+  useEffect(() => {
+    localStorage.setItem('cedars-master-class-code', code)
+  }, [code])
 
   const getGridValue = useCallback((pos) => {
     const grid = state.grid;
@@ -1565,80 +1598,98 @@ async function draw() {
 }, [state.bears, getGridValue]);
 
 const lookRight = useCallback(() => {
-  console.log('right value', state.bears[0].pos, getGridValue({
-    row: state.bears[0].pos.row,
-    col: state.bears[0].pos.col + 1
-  }))
   return getGridValue({
     row: state.bears[0].pos.row,
-    col: state.bears[0].pos.col + 1
+    col: state.bears[0].pos.col + 1,
   });
 }, [state.bears, getGridValue]);
 
-  //const lookLeft = useCallback(() => {
-  //  const bear = state.bears[0];
-  //  const currentPos = bear.pos;
-  //  const leftPos = { row: currentPos.row, col: currentPos.col - 1 };
-  //  console.log('left pos', leftPos, getGridValue(leftPos))
-  //  return getGridValue(leftPos);
-  //}, [state, getGridValue]);
-
-  //const lookRight = useCallback(() => {
-  //  const bear = state.bears[0];
-  //  const currentPos = bear.pos;
-  //  const rightPos = { row: currentPos.row, col: currentPos.col + 1 }
-  //  console.log('right pos', rightPos, getGridValue(rightPos))
-  //  return getGridValue(rightPos);
-  //}, [state, getGridValue]);
-
   const move = useCallback(getNewPos => {
-  return new Promise(resolve => {
-    setState(prev => {
-      const bear = prev.bears[0];
-      const newPos = getNewPos(bear.pos);
+    return new Promise(resolve => {
+      setState(prev => {
+        const bear = prev.bears[0];
+        const newPos = getNewPos(bear.pos);
 
-      // Immediately update local state first
-      const next = structuredClone(prev);
-      next.bears[0].pos = newPos;
+        // Immediately update local state first
+        const next = structuredClone(prev);
+        next.bears[0].pos = newPos;
 
-      // Then trigger visual movement
-      vizRef.current.moveBear(bear.id, newPos)
-        .then(() => resolve(newPos))
-        .catch(() => resolve(bear.pos));
+        // Then trigger visual movement
+        vizRef.current.moveBear(bear.id, newPos)
+          .then(() => resolve(newPos))
+          .catch(() => resolve(bear.pos));
 
-      return next;  // This update happens synchronously
+        return next;  // This update happens synchronously
+      });
     });
-  });
-}, []);
+  }, []);
 
-  //const move = useCallback(getNewPos => {
-  //  return new Promise(resolve => {
-  //    setState(prev => {
-  //      const bear = prev.bears[0];
-  //      const newPos = getNewPos(bear.pos)
-  //
-  //      let nextPos = newPos
-  //      vizRef.current.moveBear(bear.id, newPos)
-  //        .then(() => {
-  //          resolve(newPos)
-  //        })
-  //        .catch(() => {
-  //          //console.log('error?')
-  //          // TODO this does not really work
-  //          nextPos = bear.pos
-  //          resolve(bear.pos)
-  //          //return
-  //        })
-  //
-  //      const next = structuredClone(prev);
-  //      next.bears[0].pos = newPos
-  //      return next
-  //    });
-  //  });
-  //}, []);
+  const setColor = useCallback(color => {
+    return new Promise(resolve => {
+      setState(prev => {
+        console.log('set color', color)
+        const bear = prev.bears[0]
+        const next = structuredClone(prev)
+        console.log(next.grid)
+        next.grid[bear.pos.row][bear.pos.col] = color
+        resolve(next)
+        return next
+      })
+      //setState(prev => {
+      //  const bear = prev.bears[0];
+      //  const newPos = getNewPos(bear.pos);
+
+      //  // Immediately update local state first
+      //  const next = structuredClone(prev);
+      //  next.bears[0].pos = newPos;
+
+      //  // Then trigger visual movement
+      //  vizRef.current.moveBear(bear.id, newPos)
+      //    .then(() => resolve(newPos))
+      //    .catch(() => resolve(bear.pos));
+
+      //  return next;  // This update happens synchronously
+      //});
+    });
+  }, []);
+
+
+  const goTo = useCallback((row, col) => {
+    return new Promise((resolve, reject) => {
+      setState(prev => {
+        if (row >= prev.grid.length || col > prev.grid[0].length) {
+          const err = `Cannot goTo(${row}, ${col}) because it is out of bounds for the grid`
+          setErrors(err)
+          reject(err)
+          return prev
+        }
+        const bear = prev.bears[0];
+        const next = structuredClone(prev)
+        next.bears[0].pos = { row, col }
+        resolve(next)
+        return next;  // This update happens synchronously
+      });
+    });
+  }, []);
+
+  const setName = useCallback(newName => {
+    return new Promise((resolve, reject) => {
+      setState(prev => {
+        const bear = prev.bears[0];
+        const next = structuredClone(prev)
+        next.bears[0].name = newName
+        resolve(next)
+        return next;  // This update happens synchronously
+      });
+    });
+  }, []);
+
 
   const symbols = {
+    goTo,
     setState,
+    setColor,
+    setName,
     pause: ms => {
       console.log('paused for', ms)
       new Promise(r => setTimeout(r, ms))
@@ -1689,7 +1740,6 @@ const lookRight = useCallback(() => {
   const makeWall = ({ row, col }) => {
     setState(prev => {
       const next = structuredClone(prev)
-      console.log(row, col)
       next.grid[row][col] = 1
       return next
     })
@@ -1705,7 +1755,7 @@ const lookRight = useCallback(() => {
         onClickCell={makeWall}
       />
       <div className="w-full flex justify-end">
-        <button onClick={onRun}>Run</button>
+        <button onClick={onRun}>▶️ Run</button>
       </div>
       <CodeEditor initialCode={code} style={{width: 900 }} onChange={c => setCode(c)} />
       <div className="flex flex-col justify-start" style={{width: 900}}>

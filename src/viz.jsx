@@ -1271,6 +1271,8 @@ const Viz = forwardRef(({
             return 'white'
           } else if (d === WALL) {
             return 'gray'
+          } else if (typeof d === 'string') { // custom color
+            return d
           } else {
             return 'brown' // doors
           }
@@ -1385,6 +1387,7 @@ const Viz = forwardRef(({
 
           if (options.showBearNames) {
             bEnter.append('text')
+              .attr('class', 'bear-name')
               .attr('font-size', BEAR_NAME_FONT_SIZE)
               .attr('text-anchor', 'middle')
               .attr('dominant-baseline', 'central')
@@ -1466,7 +1469,11 @@ const Viz = forwardRef(({
             })
         },
         // updates are not needed because the enter selection starts off a sequence of transitions
-        update => { },
+        update => {
+          update.attr('transform', d =>
+            `translate(${d.pos.col * cellSize + cellSize / 2}, ${d.pos.row * cellSize + cellSize / 2})`
+          ).select('.bear-name').text(d => d.name)
+        },
         exit => {
           exit
             .transition('bear-exit')
