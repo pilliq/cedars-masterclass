@@ -1590,6 +1590,34 @@ const Cedars = () => {
     }
   }, [state.grid]);
 
+    const [keyPressListeners, setKeyPressListeners] = useState({})
+
+    const whenPressed = useCallback((key, callback) => {
+      setKeyPressListeners((prevListeners) => ({
+        ...prevListeners,
+        [key]: callback,
+      }))
+    }, [setKeyPressListeners])
+
+    const handleKeyDown = useCallback(
+      async (event) => {
+        const key = event.key;
+        if (keyPressListeners[key]) {
+          event.preventDefault()
+          await keyPressListeners[key]()
+        }
+      },
+      [keyPressListeners]
+    );
+
+    useEffect(() => {
+      document.addEventListener('keydown', handleKeyDown)
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown)
+      }
+    }, [handleKeyDown])
+
+
   const lookLeft = useCallback(() => {
   return getGridValue({
     row: state.bears[0].pos.row,
@@ -1687,6 +1715,7 @@ const lookRight = useCallback(() => {
 
   const symbols = {
     goTo,
+    whenPressed,
     setState,
     setColor,
     setName,
