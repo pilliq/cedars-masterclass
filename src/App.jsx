@@ -1767,11 +1767,11 @@ const lookRight = useCallback(() => {
   }
 
   const makeWall = ({ row, col }) => {
-    setState(prev => {
-      const next = structuredClone(prev)
-      next.grid[row][col] = 1
-      return next
-    })
+    //setState(prev => {
+    //  const next = structuredClone(prev)
+    //  next.grid[row][col] = 1
+    //  return next
+    //})
   }
 
   return (
