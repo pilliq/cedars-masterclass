@@ -16,6 +16,6 @@
 ```js
 async function setup() {
   await setName('Rex')
-  await moveRight()
+  await goTo(14, 22)
 }
 ```
