@@ -47,3 +47,17 @@ async function draw() {
 
 }
 ```
+
+```js
+async function setup() {
+  await setName('Rex')
+  await goTo(14, 1)
+}                                 
+
+let blue = 0
+async function draw() {
+  await moveRight()
+  await setColor(`rgb(0,0,${blue}`)
+  blue = blue + 10
+}
+```
