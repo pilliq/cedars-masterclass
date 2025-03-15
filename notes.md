@@ -19,3 +19,18 @@ async function setup() {
   await goTo(14, 22)
 }
 ```
+
+```js
+let count = 0
+async function setup() {
+  await setName('Rex')
+  await goTo(14, 22)
+}
+
+async function draw() {
+  if (count < 5) {
+    await moveRight()
+  }
+  count = count + 1
+}
+```
