@@ -34,3 +34,16 @@ async function draw() {
   count = count + 1
 }
 ```
+
+```js
+async function setup() {
+  await moveRight(1)
+  await setColor('rgb(255,0,0)')
+  await moveRight(1)
+  await setColor('rgb(255,0,0)')
+}                                 
+
+async function draw() {
+
+}
+```
