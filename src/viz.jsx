@@ -1277,8 +1277,8 @@ const Viz = forwardRef(({
             return 'brown' // doors
           }
         })
-        .attr('stroke', DEBUG ? 'black' : null)
-        .attr('stroke-width', DEBUG ? '1px' : null)
+        .attr('stroke', DEBUG ? 'lightgray' : null)
+        .attr('stroke-width', DEBUG ? '.5px' : null)
 
       const bears = bearsContainer.selectAll('g.bear').data(allBears, d => d.id)
       const honeypots = svg.selectAll('text.honeypot').data(allHoneypots, d => d.id)
