@@ -1,17 +1,13 @@
 # Cedars Masterclass
 
-## Premable steps
-
-* Allow change bear name
-* Allow change bear initial position
-* Add "choose" function which returns one item from a list, randomly
-* Add "keypressed" function which takes desired key & function
-
 ## Stage 1 - Simple Movements
 
 ### Unplugged
 * Move 1 step at a time in 1 direction
 * Move 1 step in any direction
+
+* Only one person: find a buddy and a chair for them (sits in chair; stands up; next!)
+* Multi-processor: (use chairs in centre) find a buddy and a chair -- should be must faster. But... resource contention (two people wanting the same chair); and deadlocking -- you've got a buddy but not a chair; you've got a chair but not a buddy
 
 ### Demo
 * Use keypress ("right") to move one step and then stop, then another step and stop
@@ -61,3 +57,12 @@
 
 ### Take a very simply picture and reproduce it, pixel by pixel
 ### Take a more complex picture
+
+
+## Premable steps
+
+* Allow change bear name
+* Allow change bear initial position
+* Add "choose" function which returns one item from a list, randomly
+* Add "keypressed" function which takes desired key & function
+
