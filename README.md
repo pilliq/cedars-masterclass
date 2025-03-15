@@ -1,5 +1,10 @@
 # Cedars Masterclass
 
+## Stage 0 - Set Up
+
+* From URLs on screen, find 2 webpages
+* In the grid, give your bear a name and a position
+
 ## Stage 1 - Simple Movements
 
 ### Unplugged
